@@ -39,6 +39,8 @@ namespace LY.WMSCloud.Sys.Menus.Dto
         public string Name { get; set; }
         public string Acl { get; set; }
 
+        public bool Hide { get; set; }
+
         public ICollection<int> RoleIds { get; set; }
     }
 }

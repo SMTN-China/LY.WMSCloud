@@ -15,11 +15,9 @@ namespace LY.WMSCloud.Entities.StorageData
 
         [StringLength(36)]
         public string ReelMoveMethodId { get; set; }
-        public virtual ReelMoveMethod ReelMoveMethod { get; set; }
 
 
         [StringLength(36)]
         public string StorageId { get; set; }
-        public virtual Storage Storage { get; set; }
     }
 }

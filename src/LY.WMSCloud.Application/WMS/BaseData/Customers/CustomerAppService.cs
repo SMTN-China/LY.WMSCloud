@@ -19,6 +19,10 @@ namespace LY.WMSCloud.WMS.BaseData.Customers
 
         public async Task<ICollection<CustomerDto>> GetCustomerById(string Id)
         {
+            if (Id == null)
+            {
+                Id = "";
+            }
             var res = await _repository.GetAll().Where(c => c.Id.Contains(Id)).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<CustomerDto>>(res);
@@ -26,6 +30,10 @@ namespace LY.WMSCloud.WMS.BaseData.Customers
 
         public async Task<ICollection<CustomerDto>> GetCustomerByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => c.Id.Contains(keyName)).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<CustomerDto>>(res);

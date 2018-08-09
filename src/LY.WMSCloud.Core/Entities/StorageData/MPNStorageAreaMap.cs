@@ -16,13 +16,11 @@ namespace LY.WMSCloud.Entities.StorageData
         /// </summary>
         [StringLength(36)]
         public string MPNId { get; set; }
-        public virtual MPN MPN { get; set; }
         /// <summary>
         /// 仓库Id
         /// </summary>
 
         [StringLength(36)]
         public string StorageAreaId { get; set; }
-        public virtual StorageArea StorageArea { get; set; }
     }
 }

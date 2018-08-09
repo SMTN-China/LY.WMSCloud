@@ -50,6 +50,10 @@ namespace LY.WMSCloud.WMS.ProduceData.ReelMoveMethods
 
         public async Task<ICollection<ReelMoveMethodDto>> GetReelMoveMethodByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => c.Id.Contains(keyName) && c.AllocationTypesStr.ToLower().Contains("send")).Take(10).ToListAsync();  //  && c.AllocationType.ToString().ToLower().Contains("send")
 
             return ObjectMapper.Map<List<ReelMoveMethodDto>>(res);

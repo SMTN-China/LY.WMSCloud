@@ -18,6 +18,8 @@ namespace LY.WMSCloud.EntityFrameworkCore
 
         public virtual DbSet<Menu> Menus { set; get; }
 
+        public virtual DbSet<WMSCloud.Customized.Foxlink.FaileDesc> FaileDescs { get; set; }
+
         public virtual DbSet<BarCodeAnalysis> BarCodeAnalysiss { set; get; }
         public virtual DbSet<BOM> BOMs { set; get; }
         public virtual DbSet<Customer> Customers { set; get; }
@@ -94,7 +96,11 @@ namespace LY.WMSCloud.EntityFrameworkCore
             modelBuilder.Entity<ReadyMBillDetailed>(b => b.ToTable("WMSReadyMBillDetailed").Property(t => t.Id).HasMaxLength(36));
             modelBuilder.Entity<WorkBillDetailed>(b => b.ToTable("WMSWorkBillDetailed").Property(t => t.Id).HasMaxLength(36));
             modelBuilder.Entity<ReceivedReelBill>(b => b.ToTable("WMSReceivedReelBill").Property(t => t.Id).HasMaxLength(36));
-
+            modelBuilder.Entity<WMSCloud.Customized.Foxlink.FaileDesc>(b =>
+            {   
+                b.Property(t => t.Id).HasMaxLength(36);
+                b.ToTable("FoxLinkFaileDesc").HasIndex(r => r.Text);
+            });
 
             modelBuilder.Entity<ReadyMBillWorkBillMap>(b =>
             {
@@ -114,8 +120,6 @@ namespace LY.WMSCloud.EntityFrameworkCore
                 b.ToTable("WMSRMMStorageMap");
 
                 b.Property(t => t.Id).HasMaxLength(36);
-
-                b.HasOne(pt => pt.ReelMoveMethod).WithMany(t => t.OutStorages).HasForeignKey(pt => pt.ReelMoveMethodId);
             }
 
            );
@@ -125,10 +129,6 @@ namespace LY.WMSCloud.EntityFrameworkCore
                 b.ToTable("WMSMPNStorageAreaMap");
 
                 b.Property(t => t.Id).HasMaxLength(36);
-
-                b.HasOne(pt => pt.MPN).WithMany(t => t.StorageAreas).HasForeignKey(pt => pt.MPNId);
-
-                b.HasOne(pt => pt.StorageArea).WithMany(t => t.MPNs).HasForeignKey(pt => pt.StorageAreaId);
             });
 
 

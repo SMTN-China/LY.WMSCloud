@@ -17,15 +17,11 @@ namespace LY.WMSCloud.Entities.ProduceData
         [StringLength(36)]
         public string ProductId { get; set; }
 
-        public virtual MPN Product { get; set; }
-
         /// <summary>
         /// 线别
         /// </summary>
         [StringLength(36)]
         public string LineId { get; set; }
-
-        public virtual Line Line { get; set; }
 
         /// <summary>
         /// 备注

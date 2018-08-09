@@ -23,7 +23,11 @@ namespace LY.WMSCloud.WMS.BaseData.BOMs.Dto
         /// </summary>
         [StringLength(36)]
         public string PartNoId { get; set; }
-
+        /// <summary>
+        /// 物料代码
+        /// </summary>
+        [StringLength(36)]
+        public string MainPartNoId { get; set; }
 
         /// <summary>
         /// 需求数量

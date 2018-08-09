@@ -124,6 +124,11 @@ namespace LY.WMSCloud.WMS.BaseData.StorageAreas
 
         public async Task<ICollection<string>> GetShelfByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
+
             var res = await _repositorySL.GetAll().Where(r => r.StorageAreaId == null).GroupBy(r => r.Name).Select(r => r.Key).Where(r => r.Contains(keyName)).Take(10).ToListAsync();
 
             return res;

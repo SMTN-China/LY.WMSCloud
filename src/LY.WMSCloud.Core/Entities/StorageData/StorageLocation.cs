@@ -45,21 +45,18 @@ namespace LY.WMSCloud.Entities.StorageData
         /// </summary>
         [StringLength(36)]
         public string StorageLocationTypeId { get; set; }
-        public virtual StorageLocationType StorageLocationType { get; set; }
 
         /// <summary>
         /// 区域Id
         /// </summary>
         [StringLength(36)]
         public string StorageAreaId { get; set; }
-        public virtual StorageArea StorageArea { get; set; }
         /// <summary>
         /// 仓库Id
         /// </summary>
         [StringLength(36)]
         public string StorageId { get; set; }
 
-        public virtual Storage Storage { get; set; }
 
         /// <summary>
         /// 灯状态

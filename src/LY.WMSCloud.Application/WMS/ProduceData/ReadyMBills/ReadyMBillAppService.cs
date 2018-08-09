@@ -33,7 +33,6 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
         readonly IWMSRepositories<UPH, string> _repositoryUPH;
         readonly IWMSRepositories<Slot, string> _repositorySlot;
         readonly IWMSRepositories<StorageLocation, string> _repositorySL;
-        readonly IWMSRepositories<Setting, long> _repositoryT;
         readonly IWMSRepositories<ReelSendTemp, string> _repositoryRST;
         readonly IWMSRepositories<ReelShortTemp, string> _repositoryRSHT;
         readonly IWMSRepositories<BOM, string> _repositoryBOM;
@@ -55,7 +54,6 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
             IWMSRepositories<ReelMoveLog, string> reelMoveLog,
              LightService lightService,
             //IWMSRepositories<ReadySlot, string> repositoryReadySlot,
-            IWMSRepositories<Setting, long> repositoryT,
             IWMSRepositories<ReadyMBillWorkBillMap, string> readyMBillWorkBillMap) : base(repositoryReadyMBill)
         {
             this._repository = repositoryReadyMBill;
@@ -71,7 +69,6 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
             _repositoryMPN = repositoryMPN;
             _repositorySlot = repositorySlot;
             _repositoryUPH = repositoryUPH;
-            _repositoryT = repositoryT;
             _reelMoveLog = reelMoveLog;
             LightService = lightService;
             // _repositoryReadySlot = repositoryReadySlot;
@@ -81,7 +78,7 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
         public async override Task<ReadyMBillDto> Create(ReadyMBillDto input)
         {
             input.Productstr = string.Join('|', input.WorkBills.Select(r => r.ProductId).Distinct().ToList());
-            input.WorkBilQtys = string.Join('|', input.WorkBills.Select(r => r.Id + ":" + r.Qty).Distinct().ToList());
+            input.WorkBilQtys = string.Join('|', input.WorkBills.Select(r => r.WorkBillId + ":" + r.Qty).Distinct().ToList());
             input.Linestr = string.Join('|', input.WorkBills.Select(r => r.LineId).Distinct().ToList());
 
             if (input.ReelMoveMethodId == null || input.ReelMoveMethodId == "")
@@ -145,75 +142,75 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
         public async override Task<ReadyMBillDto> Update(ReadyMBillDto input)
         {
             input.Productstr = string.Join('|', input.WorkBills.Select(r => r.ProductId).Distinct().ToList());
-            input.WorkBilQtys = string.Join('|', input.WorkBills.Select(r => r.Id + ":" + r.Qty).Distinct().ToList());
+            input.WorkBilQtys = string.Join('|', input.WorkBills.Select(r => r.WorkBillId + ":" + r.Qty).Distinct().ToList());
             input.Linestr = string.Join('|', input.WorkBills.Select(r => r.LineId).Distinct().ToList());
             if (input.ReelMoveMethodId == null || input.ReelMoveMethodId == "")
             {
-                var readyLossQty = (await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "reelMoveMethodId")).Value;
-                input.ReelMoveMethodId = readyLossQty;
+                // var readyLossQty = SettingManager.GetSettingValueForTenant("reelMoveMethodId", AbpSession.TenantId.Value); //(await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "reelMoveMethodId")).Value;
+                input.ReelMoveMethodId = SettingManager.GetSettingValueForTenant("reelMoveMethodId", AbpSession.TenantId.Value);
             }
-            //// 删除工单明细
-            //foreach (var item in _readyMBillWorkBillMap.GetAll().Where(r => r.ReadyMBillId == input.Id).ToList())
-            //{
-            //    _readyMBillWorkBillMap.Delete(item.Id);
-            //}
+            // 删除工单明细
+            foreach (var item in _readyMBillWorkBillMap.GetAll().Where(r => r.ReadyMBillId == input.Id).ToList())
+            {
+                _readyMBillWorkBillMap.Delete(item.Id);
+            }
 
-            //// 删除备料单明细
-            //var rms = _repositoryReadyMBilld.GetAllList(rm => rm.ReadyMBillId == input.Id);
-            //foreach (var item in rms)
-            //{
-            //    _repositoryReadyMBilld.Delete(item.Id);
-            //}
+            // 删除备料单明细
+            var rms = _repositoryReadyMBilld.GetAllList(rm => rm.ReadyMBillId == input.Id);
+            foreach (var item in rms)
+            {
+                _repositoryReadyMBilld.Delete(item.Id);
+            }
 
-            //CurrentUnitOfWork.SaveChanges();
-            //switch (input.MakeDetailsType)
-            //{
-            //    case MakeDetailsType.BOM:
-            //        // 按BOM生成备料明细
-            //        input.ReadyMBillDetailed.Clear();
-            //        foreach (var wo in input.WorkBills)
-            //        {
-            //            var boms = await _repositoryBOM.GetAll().Where(r => r.ProductId == wo.ProductId).ToListAsync();
-            //            foreach (var bom in boms)
-            //            {
-            //                input.ReadyMBillDetailed.Add(new ReadyMBillDetailedDto()
-            //                {
-            //                    BOMId = bom.Id,
-            //                    ReelMoveMethodId = input.ReelMoveMethodId,
-            //                    IsActive = true,
-            //                    PartNoId = bom.PartNoId,
-            //                    Qty = bom.Qty * wo.Qty,
-            //                    TenantId = AbpSession.TenantId,
-            //                });
-            //            }
-            //        }
-            //        break;
-            //    case MakeDetailsType.Slot:
-            //        // 按料站表生成备料明细
-            //        input.ReadyMBillDetailed.Clear();
-            //        foreach (var wo in input.WorkBills)
-            //        {
-            //            var slots = await _repositorySlot.GetAll().Where(r => r.ProductId == wo.ProductId).ToListAsync();
-            //            foreach (var slot in slots)
-            //            {
-            //                input.ReadyMBillDetailed.Add(new ReadyMBillDetailedDto()
-            //                {
-            //                    SlotId = slot.Id,
-            //                    ReelMoveMethodId = input.ReelMoveMethodId,
-            //                    IsActive = true,
-            //                    PartNoId = slot.PartNoId,
-            //                    Qty = slot.Qty * wo.Qty,
-            //                    TenantId = AbpSession.TenantId,
-            //                });
-            //            }
-            //        }
-            //        break;
-            //    case MakeDetailsType.Detailed:
-            //        // 直接传入备料明细灯,不做任何操作
-            //        break;
-            //    default:
-            //        break;
-            //}
+            CurrentUnitOfWork.SaveChanges();
+            switch (input.MakeDetailsType)
+            {
+                case MakeDetailsType.BOM:
+                    // 按BOM生成备料明细
+                    input.ReadyMBillDetailed.Clear();
+                    foreach (var wo in input.WorkBills)
+                    {
+                        var boms = await _repositoryBOM.GetAll().Where(r => r.ProductId == wo.ProductId).ToListAsync();
+                        foreach (var bom in boms)
+                        {
+                            input.ReadyMBillDetailed.Add(new ReadyMBillDetailedDto()
+                            {
+                                BOMId = bom.Id,
+                                ReelMoveMethodId = input.ReelMoveMethodId,
+                                IsActive = true,
+                                PartNoId = bom.PartNoId,
+                                Qty = bom.Qty * wo.Qty,
+                                TenantId = AbpSession.TenantId,
+                            });
+                        }
+                    }
+                    break;
+                case MakeDetailsType.Slot:
+                    // 按料站表生成备料明细
+                    input.ReadyMBillDetailed.Clear();
+                    foreach (var wo in input.WorkBills)
+                    {
+                        var slots = await _repositorySlot.GetAll().Where(r => r.ProductId == wo.ProductId).ToListAsync();
+                        foreach (var slot in slots)
+                        {
+                            input.ReadyMBillDetailed.Add(new ReadyMBillDetailedDto()
+                            {
+                                SlotId = slot.Id,
+                                ReelMoveMethodId = input.ReelMoveMethodId,
+                                IsActive = true,
+                                PartNoId = slot.PartNoId,
+                                Qty = slot.Qty * wo.Qty,
+                                TenantId = AbpSession.TenantId,
+                            });
+                        }
+                    }
+                    break;
+                case MakeDetailsType.Detailed:
+                    // 直接传入备料明细灯,不做任何操作
+                    break;
+                default:
+                    break;
+            }
             var res = await base.Update(input);
             return res;
         }
@@ -352,6 +349,7 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
             catch (Exception es)
             {
                 throw new LYException(es);
+
             }
         }
 
@@ -383,8 +381,8 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
             ReadyMResultDto readyMResultDto = new ReadyMResultDto() { ReReadyMBillId = readyM.ReReadyMBill };
             //// 发料单信息
 
-            var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
-            var lightType = settinglightType == null ? 0 : int.Parse(settinglightType.Value);
+            //var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
+            var lightType = SettingManager.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.TenantId.Value); // settinglightType == null ? 0 : int.Parse(settinglightType.Value);
             var lightColor = LightColor.Default;
 
             var rst1 = _repositoryRST.FirstOrDefault(r => r.ReReadyMBillId == readyM.ReReadyMBill);
@@ -437,10 +435,10 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
             var ReelMoveMethod = await _repositoryRMM.GetAll().Where(rmm => rmm.Id == ReReadyMBill.ReelMoveMethodId).Include(s => s.OutStorages).FirstOrDefaultAsync();
 
             // 查询备损数量
-            var readyLossQty = int.Parse((await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "readyLossQty")).Value);
+            var readyLossQty = await SettingManager.GetSettingValueForTenantAsync<int>("readyLossQty", AbpSession.TenantId.Value);  // readyLossQty
 
             // 查询强制先进先出天数
-            var mustFifoDay = int.Parse((await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "mustFifoDay")).Value);
+            var mustFifoDay = await SettingManager.GetSettingValueForTenantAsync<int>("mustFifoDay", AbpSession.TenantId.Value); // mustFifoDay
 
             // 添加备料绑定关系
             // 清除老灯
@@ -740,8 +738,8 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
                 }
             }
             // 获取灯配置,是单灯还是多灯
-            var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
-            var lightType = settinglightType == null ? 0 : int.Parse(settinglightType.Value);
+            // var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
+            var lightType = SettingManager.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.TenantId.Value);
             var lightColor = LightColor.Default;
 
             var rst1 = _repositoryRST.FirstOrDefault(r => r.ReReadyMBillId == readyM.ReReadyMBill);
@@ -810,7 +808,7 @@ namespace LY.WMSCloud.WMS.ProduceData.ReadyMBills
             var ReelMoveMethod = await _repositoryRMM.GetAll().Where(rmm => rmm.Id == ReReadyMBill.ReelMoveMethodId).Include(s => s.OutStorages).FirstOrDefaultAsync();
 
             // 查询最低备料数量
-            var readyFirstMinimumQty = int.Parse((await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "readyFirstMinimumQty")).Value);
+            var readyFirstMinimumQty = SettingManager.GetSettingValueForTenant<int>("readyFirstMinimumQty", AbpSession.TenantId.Value); // int.Parse((await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "readyFirstMinimumQty")).Value);
 
             // 查询当前工单的物料需求详情
             var readyMBs = await _repositoryReadyMBilld.GetAll().Where(r => readyM.ReadyMBills.Select(rm => rm.Id).Contains(r.ReadyMBillId))

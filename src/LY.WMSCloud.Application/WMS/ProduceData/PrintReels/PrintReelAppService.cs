@@ -14,31 +14,28 @@ namespace LY.WMSCloud.WMS.ProduceData.PrintReels
     public class PrintReelAppService : ServiceBase<PrintReel, PrintReelDto, string>, IPrintReelAppService
     {
         readonly IWMSRepositories<PrintReel, string> _repository;
-        readonly IWMSRepositories<Setting, long> _repositoryT;
         readonly IWMSRepositories<MPN, string> _repositoryMPN;
 
         public PrintReelAppService(
             IWMSRepositories<PrintReel, string> repository,
-            IWMSRepositories<Setting, long> repositoryT,
             IWMSRepositories<MPN, string> repositoryMPN
 
             ) : base(repository)
         {
             _repository = repository;
-            _repositoryT = repositoryT;
             _repositoryMPN = repositoryMPN;
         }
         [HttpPost]
         public async Task<PrintReelDto> GetNewPrintReel(PrintReelDto printReelDto)
         {
 
-            var printStartStr = await _repositoryT.FirstOrDefaultAsync(r => r.TenantId == AbpSession.TenantId && r.Name == "printStartStr");
+            var printStartStr = SettingManager.GetSettingValueForTenant("printStartStr", AbpSession.TenantId.Value);  // await _repositoryT.FirstOrDefaultAsync(r => r.TenantId == AbpSession.TenantId && r.Name == "printStartStr");
 
             var partStr = DateTime.Now.ToString("yyyyMMdd");
 
             if (printStartStr != null)
             {
-                partStr = printStartStr.Value + partStr;
+                partStr = printStartStr + partStr;
             }
             printReelDto.PrintStr = partStr;
             var printReelOld = _repository.GetAll().Where(r => r.PrintStr == partStr).OrderByDescending(r => r.PrintIndex).FirstOrDefault();

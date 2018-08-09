@@ -43,7 +43,7 @@ namespace LY.WMSCloud.Sys
             return base.Delete(input);
         }
 
-        public async Task<ICollection<OrgDto>> GetChild(int id = -1)
+        public async Task<ICollection<OrgDto>> GetChild(int id)
         {
             List<Org> res;
             if (id == -1)

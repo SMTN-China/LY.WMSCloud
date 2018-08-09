@@ -134,8 +134,18 @@ namespace LY.WMSCloud.WMS.BaseData.BarCodeAnalysiss
                         }
                         break;
                     case 6:
-                        newYear = DateTime.Now.Year.ToString().Substring(0, 2) + oldDC.Substring(0, 2); ;
-                        dt = new DateTime(int.Parse(newYear), int.Parse(oldDC.Substring(2, 2)), int.Parse(oldDC.Substring(4, 2)));
+                        //newYear = DateTime.Now.Year.ToString().Substring(0, 2) + oldDC.Substring(0, 2); ;
+                        //dt = new DateTime(int.Parse(newYear), int.Parse(oldDC.Substring(2, 2)), int.Parse(oldDC.Substring(4, 2)));
+                        newYear = DateTime.Now.Year.ToString().Substring(0, 4);
+                        dtWeek = new DateTime(int.Parse(newYear), 1, 1).DayOfWeek;
+                        if (oldDC.Substring(4, 2) == "01")
+                        {
+                            dt = new DateTime(int.Parse(newYear), 1, 1);
+                        }
+                        else
+                        {
+                            dt = new DateTime(int.Parse(newYear), 1, 1).AddDays(7 * (int.Parse(oldDC.Substring(4, 2)) - 1)).AddDays(DayOfWeek.Sunday - dtWeek);
+                        }
                         break;
                     case 8:
                         dt = new DateTime(int.Parse(oldDC.Substring(0, 4)), int.Parse(oldDC.Substring(4, 2)), int.Parse(oldDC.Substring(6, 2)));

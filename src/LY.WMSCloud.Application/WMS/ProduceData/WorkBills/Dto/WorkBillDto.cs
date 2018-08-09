@@ -29,11 +29,6 @@ namespace LY.WMSCloud.WMS.ProduceData.WorkBills.Dto
         public string Remark { get; set; }
 
         /// <summary>
-        /// 备料单关联
-        /// </summary>
-        public ICollection<ReadyMBillWorkBillMap> ReadyMBills { get; set; }
-
-        /// <summary>
         /// 工单套数
         /// </summary>
         public int Qty { get; set; }

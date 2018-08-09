@@ -17,6 +17,10 @@ namespace LY.WMSCloud.WMS.ProduceData.WorkBills
 
         public async Task<ICollection<WorkBillDto>> GetWorkBillByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(w => w.Id.Contains(keyName) && w.IsActive && w.Qty > w.ReadyMQty).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<WorkBillDto>>(res);

@@ -58,6 +58,12 @@ namespace LY.WMSCloud.Authorization.Accounts
 
         public async Task<ICollection<TenantDto>> GetTenantByKeyName(string keyName)
         {
+            if (string.IsNullOrEmpty(keyName))
+            {
+                var resE = await TenantManager.Tenants.Take(10).ToListAsync();
+                return resE.MapTo<List<TenantDto>>();
+            }
+
             List<TenantDto> host = new List<TenantDto>() { new TenantDto() { Id = 0, Name = "Ö÷»ú", TenancyName = "Host" } };
             var res = await TenantManager.Tenants.Where(t => t.Name.Contains(keyName)).Take(10).ToListAsync();
 

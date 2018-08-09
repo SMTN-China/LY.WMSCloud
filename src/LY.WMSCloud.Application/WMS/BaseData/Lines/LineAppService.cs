@@ -23,6 +23,10 @@ namespace LY.WMSCloud.WMS.BaseData.Lines
 
         public async Task<ICollection<LineDto>> GetLineByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(l => l.Id.Contains(keyName)).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<LineDto>>(res);

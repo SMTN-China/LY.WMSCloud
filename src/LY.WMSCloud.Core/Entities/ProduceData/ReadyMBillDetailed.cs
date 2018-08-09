@@ -26,7 +26,6 @@ namespace LY.WMSCloud.Entities.ProduceData
         /// </summary>
         [StringLength(36)]
         public string PartNoId { get; set; }
-        public virtual MPN PartNo { get; set; }
 
 
         /// <summary>
@@ -34,7 +33,6 @@ namespace LY.WMSCloud.Entities.ProduceData
         /// </summary>
         [StringLength(36)]
         public string ReelMoveMethodId { get; set; }
-        public virtual ReelMoveMethod ReelMoveMethod { get; set; }
 
 
         /// <summary>
@@ -58,14 +56,12 @@ namespace LY.WMSCloud.Entities.ProduceData
         [StringLength(36)]
 
         public string BOMId { get; set; }
-        public virtual BOM BOM { get; set; }
         /// <summary>
         /// BOM编号,用BOM生成时会记录
         /// </summary>
         [StringLength(36)]
 
         public string SlotId { get; set; }
-        public virtual Slot Slot { get; set; }
 
         /// <summary>
         /// 指定供应商，支持正则

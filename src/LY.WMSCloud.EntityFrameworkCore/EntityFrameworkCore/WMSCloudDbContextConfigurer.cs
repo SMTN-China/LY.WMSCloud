@@ -10,6 +10,7 @@ namespace LY.WMSCloud.EntityFrameworkCore
             builder
                .UseLazyLoadingProxies()
                .UseMySql(connectionString);
+            // .UseOracle(connectionString);
         }
 
         public static void Configure(DbContextOptionsBuilder<WMSCloudDbContext> builder, DbConnection connection)
@@ -17,6 +18,7 @@ namespace LY.WMSCloud.EntityFrameworkCore
             builder
                .UseLazyLoadingProxies()
                .UseMySql(connection);
+            // .UseOracle(connection);
         }
     }
 }

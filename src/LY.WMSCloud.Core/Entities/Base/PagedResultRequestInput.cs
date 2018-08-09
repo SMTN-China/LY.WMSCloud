@@ -93,7 +93,13 @@ namespace LY.WMSCloud.Entities
 
                     try
                     {
-                        var queryValue = Newtonsoft.Json.JsonConvert.DeserializeObject(requestMESDto.QueryValue.ToString(), propertie.PropertyType);
+                        dynamic queryValue = ChangeType(requestMESDto.QueryValue, propertie.PropertyType);
+
+                        if (propertie.PropertyType.Name == "DateTime") // 转换成本地时间
+                        {
+                            queryValue = ((DateTime)queryValue).ToLocalTime();
+                        }
+
 
                         //各种操作的具体处理                  
                         switch (requestMESDto.Operation)
@@ -198,7 +204,34 @@ namespace LY.WMSCloud.Entities
             }
             return totalExpr;
         }
+
+        static public object ChangeType(object value, Type type)
+        {
+            if (value == null && type.IsGenericType) return Activator.CreateInstance(type);
+            if (value == null) return null;
+            if (type == value.GetType()) return value;
+            if (type.IsEnum)
+            {
+                if (value is string)
+                    return Enum.Parse(type, value as string);
+                else
+                    return Enum.ToObject(type, value);
+            }
+            if (!type.IsInterface && type.IsGenericType)
+            {
+                Type innerType = type.GetGenericArguments()[0];
+                object innerValue = ChangeType(value, innerType);
+                return Activator.CreateInstance(type, new object[] { innerValue });
+            }
+            if (value is string && type == typeof(Guid)) return new Guid(value as string);
+            if (value is string && type == typeof(Version)) return new Version(value as string);
+            if (!(value is IConvertible)) return value;
+            return Convert.ChangeType(value, type);
+        }
     }
+
+
+
 
     /// <summary>
     /// 分页查询对象
@@ -244,7 +277,7 @@ namespace LY.WMSCloud.Entities
         /// <summary>
         /// 查询参考值
         /// </summary>
-        public object QueryValue { get; set; }
+        public dynamic QueryValue { get; set; }
         /// <summary>
         /// 链接符
         /// </summary>

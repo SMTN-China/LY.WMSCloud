@@ -22,7 +22,19 @@ namespace LY.WMSCloud.Configuration
             List<ISettingValue> list = new List<ISettingValue>();
             foreach (var name in names)
             {
-                var value = await SettingManager.GetSettingValueForTenantAsync(name, AbpSession.TenantId.Value);
+                var value = await SettingManager.GetSettingValueForTenantAsync(name, AbpSession.GetTenantId());
+                list.Add(new SettingValue() { Name = name, Value = value });
+            }
+
+            return list;
+        }
+        [HttpPost]
+        public async Task<ICollection<ISettingValue>> GetUserConfig(string[] names)
+        {
+            List<ISettingValue> list = new List<ISettingValue>();
+            foreach (var name in names)
+            {
+                var value = await SettingManager.GetSettingValueForUserAsync(name, AbpSession.GetTenantId(),AbpSession.GetUserId());
                 list.Add(new SettingValue() { Name = name, Value = value });
             }
 
@@ -34,7 +46,15 @@ namespace LY.WMSCloud.Configuration
         {
             foreach (var setting in settings)
             {
-                await SettingManager.ChangeSettingForTenantAsync(AbpSession.TenantId.Value, setting.Name, setting.Value);
+                await SettingManager.ChangeSettingForTenantAsync(AbpSession.GetTenantId(), setting.Name, setting.Value);
+            }
+        }
+        [HttpPost]
+        public async Task SetUserConfig(SettingValue[] settings)
+        {
+            foreach (var setting in settings)
+            {
+                await SettingManager.ChangeSettingForUserAsync(AbpSession.ToUserIdentifier(), setting.Name, setting.Value);
             }
         }
     }

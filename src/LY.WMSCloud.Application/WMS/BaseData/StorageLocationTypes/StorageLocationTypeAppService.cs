@@ -19,6 +19,10 @@ namespace LY.WMSCloud.WMS.BaseData.StorageLocationTypes
 
         public async Task<ICollection<StorageLocationTypeDto>> GetStorageLocationTypeByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => c.Id.Contains(keyName)).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<StorageLocationTypeDto>>(res);

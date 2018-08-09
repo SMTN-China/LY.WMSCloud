@@ -31,18 +31,16 @@ namespace LY.WMSCloud.Entities.ProduceData
         /// </summary>
         [StringLength(36)]
         public string InStorageId { get; set; }
-        [StringLength(36)]
-        public virtual Storage InStorage { get; set; }
-
+        public string Icon { get; set; }
         /// <summary>
         /// 操作合集
         /// </summary>
         [NotMapped]
-        public ICollection<AllocationType> AllocationTypes{get; set;}
+        public ICollection<AllocationType> AllocationTypes { get; set; }
         /// <summary>
         /// 操作字符
         /// </summary>
-        [StringLength(100)]        
+        [StringLength(100)]
         public string AllocationTypesStr
         {
             get
@@ -115,6 +113,10 @@ namespace LY.WMSCloud.Entities.ProduceData
         /// <summary>
         /// 库位下架
         /// </summary>
-        UpByShelf
+        UpByShelf,
+        /// <summary>
+        /// 出库
+        /// </summary>
+        Out
     }
 }

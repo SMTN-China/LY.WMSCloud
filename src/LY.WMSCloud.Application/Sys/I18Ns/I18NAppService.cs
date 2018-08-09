@@ -52,6 +52,9 @@ namespace LY.WMSCloud.Sys.I18Ns
 
             var languageText = config.CreateMapper().Map<List<System.Reflection.PropertyInfo>, List<ApplicationLanguageText>>(p.ToList());
 
+            var nDtos = ObjectMapper.Map<List<I18NDto>>(languageText);
+            var more = dbI18N.Where(r => !(nDtos.Select(o => o.Key).Contains(r.Key)));
+            languageText.AddRange(more);
             return ObjectMapper.Map<List<I18NDto>>(languageText);
         }
     }

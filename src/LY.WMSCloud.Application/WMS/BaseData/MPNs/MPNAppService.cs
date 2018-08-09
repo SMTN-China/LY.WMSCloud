@@ -15,25 +15,16 @@ namespace LY.WMSCloud.WMS.BaseData.MPNs
     {
         readonly IWMSRepositories<MPN, string> _repository;
         readonly IWMSRepositories<Customer, string> _repositoryCustomer;
-        readonly IWMSRepositories<Setting, long> _repositoryT;
-        public MPNAppService(IWMSRepositories<MPN, string> repository, IWMSRepositories<Customer, string> repositoryCustomer, IWMSRepositories<Setting, long> repositoryT) : base(repository)
+        public MPNAppService(IWMSRepositories<MPN, string> repository, IWMSRepositories<Customer, string> repositoryCustomer) : base(repository)
         {
             _repositoryCustomer = repositoryCustomer;
-            _repositoryT = repositoryT;
             _repository = repository;
         }
 
         public async Task<bool> BatchInsOrUpdate(ICollection<MPNDto> input)
         {
             // 查询备损数量
-            string registerStorageId = null;
-
-            // 此处后面可能会进行改动
-            var readyLossQty = _repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "registerStorageId");
-            if (readyLossQty != null)
-            {
-                registerStorageId = readyLossQty.Value;
-            }
+            string registerStorageId = SettingManager.GetSettingValueForTenant("registerStorageId", AbpSession.TenantId.Value); //(   _repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "registerStorageId");
 
             try
             {
@@ -85,12 +76,20 @@ namespace LY.WMSCloud.WMS.BaseData.MPNs
 
         public async Task<ICollection<MPNDto>> GetPartNoByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => c.Id.Contains(keyName)).Take(10).ToListAsync();
             return ObjectMapper.Map<List<MPNDto>>(res);
         }
 
         public async Task<ICollection<MPNDto>> GetProductByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => c.MPNHierarchy == MPNHierarchy.Product && c.Id.Contains(keyName)).Take(10).ToListAsync();
             return ObjectMapper.Map<List<MPNDto>>(res);
         }

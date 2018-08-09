@@ -31,5 +31,10 @@ namespace LY.WMSCloud.WMS.ProduceData.ReelMoveMethods.Dto
         public string OutStorageIds { get; set; }
         [StringLength(36)]
         public string InStorageId { get; set; }
+        /// <summary>
+        /// 图标
+        /// </summary>
+        public string Icon { get; set; }
+
     }
 }

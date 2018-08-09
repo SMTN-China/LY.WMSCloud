@@ -23,6 +23,16 @@ namespace LY.WMSCloud.Roles.Dto
         public string Description { get; set; }
 
         public bool IsStatic { get; set; }
+        public string OrgName { get; set; }
+
+        public int? OrgId { get; set; }
+
+        [StringLength(2000)]
+        public string Remark { get; set; }
+
+        public int Grade { get; set; }
+
+        public bool IsActive { get; set; }
 
         public List<string> Permissions { get; set; }
     }

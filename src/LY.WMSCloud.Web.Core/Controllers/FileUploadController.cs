@@ -9,6 +9,7 @@ using LY.WMSCloud.CommonService;
 using LY.WMSCloud.Entities.BaseData;
 using LY.WMSCloud.WMS.BaseData.BOMs.Dto;
 using LY.WMSCloud.WMS.BaseData.MPNs.Dto;
+using LY.WMSCloud.WMS.BaseData.Slots.Dto;
 using LY.WMSCloud.WMS.BaseData.StorageLocations;
 using LY.WMSCloud.WMS.BaseData.StorageLocations.Dto;
 using LY.WMSCloud.WMS.ProduceData.ReadyMBills.Dto;
@@ -110,6 +111,58 @@ namespace LY.WMSCloud.Controllers
 
                 throw new LYException(ex.Message);
             }
+        }
+
+        [HttpPost]
+        [AbpAuthorize(PermissionNames.Pages_Slots)]
+        public async Task SlotImportF(IFormFile file)
+        {
+            try
+            {
+
+                var dtoName = "SlotDto";
+                var ps = await GetI18NByDtoName(dtoName);
+
+                long size = 0;
+
+                var filename = ContentDispositionHeaderValue
+                              .Parse(file.ContentDisposition)
+                              .FileName
+                              .Trim('"');
+
+                filename = _hostingEnv.WebRootPath + $@"\{ filename }";
+                size += file.Length;
+                using (FileStream fs = System.IO.File.Create(filename))
+                {
+                    file.CopyTo(fs);
+                    fs.Flush();
+
+                    var res = await _fileHelperService.ExcleToListEntities<SlotDto>(ps, dtoName, fs);
+
+                    foreach (var slots in res)
+                    {
+                        foreach (var slotDto in slots)
+                        {
+                            // 查询实体,
+                            var slot = _repositorySlot.FirstOrDefault(s => s.LineId == slotDto.LineId && s.ProductId == slotDto.ProductId && s.PartNoId == slotDto.PartNoId && s.SlotName == slotDto.SlotName);
+                            if (slot == null)
+                            {
+                                await _repositorySlot.InsertAsync(ObjectMapper.Map<Slot>(slotDto));
+                            }
+                            else
+                            {
+                                slot.Qty = slotDto.Qty;
+                            }
+                        }
+                    }
+                }
+                System.IO.File.Delete(filename);
+            }
+            catch (Exception ex)
+            {
+                throw new LYException(ex.Message);
+            }
+
         }
 
         [HttpPost]

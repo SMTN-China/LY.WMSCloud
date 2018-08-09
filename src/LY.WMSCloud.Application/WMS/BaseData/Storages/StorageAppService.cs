@@ -20,6 +20,10 @@ namespace LY.WMSCloud.WMS.BaseData.Storages
 
         public async Task<ICollection<StorageDto>> GetStorageByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => c.Id.Contains(keyName)).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<StorageDto>>(res);
@@ -27,11 +31,19 @@ namespace LY.WMSCloud.WMS.BaseData.Storages
 
         public async Task<ICollection<StorageDto>> GetSStorageByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => (c.IncomingMethod == IncomingMethod.ForSelf || c.IncomingMethod == IncomingMethod.Other) && c.Id.Contains(keyName)).Take(10).ToListAsync();
             return ObjectMapper.Map<List<StorageDto>>(res);
         }
         public async Task<ICollection<StorageDto>> GetCStorageByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repository.GetAll().Where(c => (c.IncomingMethod == IncomingMethod.ForCustomer || c.IncomingMethod == IncomingMethod.Other) && c.Id.Contains(keyName)).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<StorageDto>>(res);

@@ -46,6 +46,12 @@ namespace LY.WMSCloud.Entities.ProduceData
         [StringLength(100)]
         public string ReelId { get; set; }
         /// <summary>
+        /// 料卷信息
+        /// </summary>
+        [StringLength(2000)]
+        public string ReelInfo { get; set; }
+
+        /// <summary>
         /// 物料编码
         /// </summary>
         [StringLength(36)]

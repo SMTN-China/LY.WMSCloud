@@ -1,4 +1,7 @@
-﻿using LY.WMSCloud.Base;
+﻿using Abp.Configuration;
+using Abp.Runtime.Session;
+using Castle.Core.Logging;
+using LY.WMSCloud.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,25 +11,83 @@ namespace LY.WMSCloud.CommonService
     public class LightService
     {
         HttpHelp HttpHelp { get; set; }
-
-        public LightService(HttpHelp httpHelp)
+        ISettingManager Setting { get; set; }
+        IAbpSession AbpSession { get; set; }
+        ILogger Logger;
+        public LightService(HttpHelp httpHelp, ILogger logger, ISettingManager setting, IAbpSession abpSession)
         {
             HttpHelp = httpHelp;
+            Logger = logger;
+            Setting = setting;
+            AbpSession = abpSession;
         }
 
-        public LightMsg LightOrder(List<StorageLight> storageLight)
+        public void LightOrder(List<StorageLight> storageLight)
         {
-            return HttpHelp.Post<LightMsg>("/api/Light/LightOrder", storageLight);
+            try
+            {
+                if (Setting.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.GetTenantId()) == 1)
+                {
+                    storageLight.ForEach(r =>
+                    {
+                        if (r.LightColor == Entities.StorageData.LightColor.Default)
+                        {
+                            r.LightColor = Entities.StorageData.LightColor.Green;
+                        }
+                    });
+                }
+                HttpHelp.Post<LightMsg>("/api/Light/LightOrder", storageLight);
+            }
+            catch (Exception wx)
+            {
+                Logger.Error("灯控制失败", wx);
+            }
+
         }
 
-        public LightMsg HouseOrder(List<HouseLight> houseLights)
+        public void HouseOrder(List<HouseLight> houseLights)
         {
-            return HttpHelp.Post<LightMsg>("/api/Light/HouseOrder", houseLights);
+            try
+            {
+                if (Setting.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.GetTenantId()) == 1)
+                {
+                    houseLights.ForEach(r =>
+                    {
+                        if (r.LightColor == Entities.StorageData.LightColor.Default)
+                        {
+                            r.LightColor = Entities.StorageData.LightColor.Green;
+                        }
+                    });
+                }
+                HttpHelp.Post<LightMsg>("/api/Light/HouseOrder", houseLights);
+            }
+            catch (Exception wx)
+            {
+                Logger.Error("灯控制失败", wx);
+            }
+
         }
 
-        public LightMsg AllLightOrder(List<AllLight> allLightOrders)
+        public void AllLightOrder(List<AllLight> allLightOrders)
         {
-            return HttpHelp.Post<LightMsg>("/api/Light/AllLightOrder", allLightOrders);
+            try
+            {
+                if (Setting.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.GetTenantId()) == 1)
+                {
+                    allLightOrders.ForEach(r =>
+                    {
+                        if (r.LightColor == Entities.StorageData.LightColor.Default)
+                        {
+                            r.LightColor = Entities.StorageData.LightColor.Green;
+                        }
+                    });
+                }
+                HttpHelp.Post<LightMsg>("/api/Light/AllLightOrder", allLightOrders);
+            }
+            catch (Exception wx)
+            {
+                Logger.Error("灯控制失败", wx);
+            }
         }
     }
 }

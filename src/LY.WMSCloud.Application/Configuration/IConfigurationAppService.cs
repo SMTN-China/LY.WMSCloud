@@ -12,5 +12,9 @@ namespace LY.WMSCloud.Configuration
         Task<ICollection<ISettingValue>> GetAppConfig(string[] names);
 
         Task SetAppConfig(SettingValue[] settings);
+
+        Task<ICollection<ISettingValue>> GetUserConfig(string[] names);
+
+        Task SetUserConfig(SettingValue[] settings);
     }
 }

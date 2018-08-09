@@ -20,13 +20,5 @@ namespace LY.WMSCloud.Entities.StorageData
         /// </summary>
         [StringLength(500)]
         public string Remark { get; set; }
-        /// <summary>
-        /// 区域物料
-        /// </summary>
-        public virtual ICollection<MPNStorageAreaMap> MPNs { get; set; }
-        /// <summary>
-        /// 区域库位
-        /// </summary>
-        public virtual ICollection<StorageLocation> StorageLocations { get; set; }
     }
 }

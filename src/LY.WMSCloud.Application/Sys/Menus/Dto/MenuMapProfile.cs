@@ -14,7 +14,9 @@ namespace LY.WMSCloud.Sys.Menus.Dto
             CreateMap<Menu, MenuDto>().ForMember(m => m.ParentName, o => o.MapFrom(m => GetParentName(m.ParentId)))
                 .ForMember(m => m.Name, o => o.MapFrom(m => m.Text));
 
-            CreateMap<Menu, MenuCDto>().ForMember(m => m.Name, o => o.MapFrom(m => m.Text));
+            CreateMap<Menu, MenuCDto>().ForMember(m => m.Name, o => o.MapFrom(m => m.Text))
+
+                .ForMember(m => m.Hide, o => o.MapFrom(m => !m.IsActive));
 
             CreateMap<MenuDto, Menu>();
         }

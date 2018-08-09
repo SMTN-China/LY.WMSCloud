@@ -22,5 +22,8 @@ namespace LY.WMSCloud.Users
         Task<UserDto> ChangePwd(string oldPwd, string newPwd);
 
         Task<UserDto> ChangeUserInfoAsync(UserDto user);
+
+        Task RePwd(long id);
+
     }
 }

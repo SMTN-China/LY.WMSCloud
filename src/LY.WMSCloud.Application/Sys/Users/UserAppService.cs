@@ -118,7 +118,7 @@ namespace LY.WMSCloud.Users
 
         public async Task ChangeLanguage(ChangeUserLanguageDto input)
         {
-            if (input.LanguageName== "zh-CN")
+            if (input.LanguageName == "zh-CN")
             {
                 input.LanguageName = "zh-Hans";
             }
@@ -244,6 +244,10 @@ namespace LY.WMSCloud.Users
 
             return ObjectMapper.Map<UserDto>(user);
         }
-
+        [HttpPost]
+        public async Task RePwd(long id)
+        {
+            await UserManager.ChangePasswordAsyncNoValid(await _userManager.FindByIdAsync(id.ToString()), "123qwe");
+        }
     }
 }

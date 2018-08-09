@@ -35,7 +35,6 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
         readonly IBarCodeAnalysisAppService _barCodeAnalysisAppService;
         readonly IWMSRepositories<ReadyMBillDetailed, string> _repositoryReadyMBilld;
         readonly IWMSRepositories<ReadyMBill, string> _repositoryReadyMBill;
-        readonly IWMSRepositories<Setting, long> _repositoryT;
         readonly IWMSRepositories<ReelSendTemp, string> _repositoryRST;
         readonly IWMSRepositories<ReelSupplyTemp, string> _repositoryReelSupplyTemp;
         // readonly IWMSRepositories<ReadySlot, string> _repositoryReadySlot;
@@ -57,7 +56,6 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
             IWMSRepositories<MPNStorageAreaMap, string> repositorysMPNA,
             IWMSRepositories<Storage, string> repositorysStorage,
             IWMSRepositories<Slot, string> repositorySlot,
-            IWMSRepositories<Setting, long> repositoryT,
             LightService lightService,
             IWMSRepositories<ReelSendTemp, string> repositoryRST,
             IWMSRepositories<ReelMoveMethod, string> repositoryRMM) : base(repository)
@@ -73,7 +71,6 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
             _repositoryReelSupplyTemp = repositoryReelSupplyTemp;
             _repositoryrrb = repositoryrrb;
             _repositorysStorageA = repositorysStorageA;
-            _repositoryT = repositoryT;
             // _repositoryReadySlot = repositoryReadySlot;
             LightService = lightService;
             _repositoryReadyMBill = repositoryReadyMBill;
@@ -84,8 +81,8 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
 
         public async Task BrightByPartNoIds(LightOrderDto[] input)
         {
-            var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
-            var lightType = settinglightType == null ? 0 : int.Parse(settinglightType.Value);
+            // var settinglightType = SettingManager.GetSettingValueForTenant("lightIsRGB", AbpSession.TenantId.Value);// await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
+            var lightType = SettingManager.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.TenantId.Value);
             var lightColor = LightColor.Default;
             if (lightType == 1)
             {
@@ -140,8 +137,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
 
         public async Task BrightByReelIds(LightOrderDto[] input)
         {
-            var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
-            var lightType = settinglightType == null ? 0 : int.Parse(settinglightType.Value);
+            var lightType = SettingManager.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.TenantId.Value);
             var lightColor = LightColor.Default;
             if (lightType == 1)
             {
@@ -196,8 +192,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
 
         public async Task ExtinguishedByPartNoIds(LightOrderDto[] input)
         {
-            var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
-            var lightType = settinglightType == null ? 0 : int.Parse(settinglightType.Value);
+            var lightType = SettingManager.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.TenantId.Value);
             var lightColor = LightColor.Default;
             if (lightType == 1)
             {
@@ -251,8 +246,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
 
         public async Task ExtinguishedByReelIds(LightOrderDto[] input)
         {
-            var settinglightType = await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "lightIsRGB");
-            var lightType = settinglightType == null ? 0 : int.Parse(settinglightType.Value);
+            var lightType = SettingManager.GetSettingValueForTenant<int>("lightIsRGB", AbpSession.TenantId.Value);
             var lightColor = LightColor.Default;
             if (lightType == 1)
             {
@@ -329,9 +323,9 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
         public async Task<PagedResultDto<ReelOutLifeDto>> GetOutLifeReel(PagedResultRequestInput input)
         {
             // 查询仓库超期物料
-            var overdueDaySet = (await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "overdueDay")).Value;
+            // var overdueDaySet = SettingManager.GetSettingValueForTenant<double>("overdueDay", AbpSession.TenantId.Value);// (await _repositoryT.FirstOrDefaultAsync(c => c.TenantId == AbpSession.TenantId && c.Name == "overdueDay")).Value;
 
-            double overdueDay = double.Parse(overdueDaySet);
+            double overdueDay = SettingManager.GetSettingValueForTenant<double>("overdueDay", AbpSession.TenantId.Value);
 
             //Logger.Info(overdueDay.ToString());   
 
@@ -536,14 +530,14 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                                 if (shelfOn.ReelId != null)
                                 {
                                     resDto.Msg = "库位[" + inputDto.ShlefLab + "]已绑定料卷[" + shelfOn.ReelId + "]";
-                                    throw new LYException(resDto);
+                                    throw new LYException(1, resDto.Msg);
                                 }
 
                                 // 库位是否在转入仓
                                 if (shelfOn.StorageId != reelMoveMethod.InStorageId)
                                 {
                                     resDto.Msg = "库位[" + inputDto.ShlefLab + "]不不属于[" + reelMoveMethod.InStorageId + "]仓";
-                                    throw new LYException(resDto.Msg);
+                                    throw new LYException(1, resDto.Msg);
                                 }
 
                                 // 料卷是否上架
@@ -560,7 +554,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                                 if (mpnA.Length > 0 && !mpnA.Select(r => r.StorageAreaId).Contains(shelfOn.StorageAreaId))
                                 {
                                     resDto.Msg = "物料[" + reel.PartNoId + "]允许上架分区为[" + string.Join('|', mpnA.Select(r => r.StorageAreaId)) + "]";
-                                    throw new LYException(resDto);
+                                    throw new LYException(resDto.Msg);
                                 }
                                 else
                                 {
@@ -568,7 +562,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                                     if (shelfOn.StorageAreaId != null && !mpnA.Select(r => r.StorageAreaId).Contains(shelfOn.StorageAreaId))
                                     {
                                         resDto.Msg = "分区[" + shelfOn.StorageAreaId + "]不允许物料[" + reel.PartNoId + "]上架";
-                                        throw new LYException(resDto);
+                                        throw new LYException(resDto.Msg);
                                     }
                                 }
                                 // Logger.Info("tm91" + DateTime.Now.ToString("yyyyMMdd HH:mm:ss ffff"));
@@ -626,7 +620,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                                     throw new LYException(resDto.Msg);
                                 }
                                 // 查询挑料料站表行数据
-                                var readySlot = sendtemp.ReadyMBillDetailed.Slot;
+                                var readySlot = await _repositorySlot.FirstOrDefaultAsync(sendtemp.SlotId);
 
                                 if (sendtemp.IsSend)
                                 {
@@ -743,11 +737,19 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                                 #endregion
                                 break;
                             case AllocationType.Return: // 退料
-                                var readyBillDreturn = await _repositoryReadyMBilld.FirstOrDefaultAsync(reel.ReadyMBillDetailedId);
-                                if (readyBillDreturn != null)
+                                // 查询最近的发料日志
+                                var sendLog = await _repositoryReelMoveLog.GetAll().Where(r => r.IsActive && r.ReelId == reel.Id && r.ReadyMBillDetailedId != null).OrderByDescending(r => r.CreationTime).FirstOrDefaultAsync();
+
+                                if (sendLog != null)
                                 {
-                                    readyBillDreturn.ReturnQty = inputDto.ReturnReelQty;
+                                    var readyBillDreturn = await _repositoryReadyMBilld.FirstOrDefaultAsync(sendLog.ReadyMBillDetailedId);
+                                    if (sendLog != null)
+                                    {
+                                        readyBillDreturn.ReturnQty += inputDto.ReturnReelQty;
+                                        sendLog.IsActive = false;
+                                    }
                                 }
+
                                 break;
                             case AllocationType.Received: // 收料
 
@@ -757,7 +759,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                                 if (receiveId == null)
                                 {
                                     resDto.Msg = "当前ERP没有足够的IQC检验单,请确认";
-                                    throw new LYException(resDto);
+                                    throw new LYException(resDto.Msg);
                                 }
 
                                 receiveId.ReceivedQty += reel.Qty;
@@ -799,7 +801,7 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                                 readyBillDSupply.SendQty += reel.Qty;
 
                                 // 查询挑料料站表行数据
-                                var readySlotSupply = readyBillDSupply.Slot;                                
+                                var readySlotSupply = await _repositorySlot.FirstOrDefaultAsync(readyBillDSupply.SlotId);
 
                                 // 改变料盘备料关联
                                 reel.ReadyMBillDetailedId = readyBillDSupply.Id;
@@ -852,16 +854,21 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                     case AllocationType.UpByShelf:
 
                         #region 按库位下架
+                        if (inputDto.ShlefLab == null || inputDto.ShlefLab.Length == 0)
+                        {
+                            inputDto.ShlefLab = inputDto.BarCode;
+                        }
+
                         // 找到库位物料
-                        var shelfL = _repositorysl.FirstOrDefault(inputDto.BarCode);
+                        var shelfL = _repositorysl.FirstOrDefault(inputDto.ShlefLab);
                         if (shelfL == null)
                         {
-                            throw new LYException("库位[" + inputDto.BarCode + "]不存在");
+                            throw new LYException(1, "库位[" + inputDto.ShlefLab + "]不存在");
                         }
 
                         if (shelfL.ReelId == null)
                         {
-                            throw new LYException("库位[" + inputDto.BarCode + "]上无料");
+                            throw new LYException(1, "库位[" + inputDto.ShlefLab + "]上无料");
                         }
 
                         // 查询库位上 reel
@@ -910,13 +917,29 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
                         reelMoveLog.Qty = reel.Qty;
                         #endregion
                         break;
+                    case AllocationType.Out:
+                        #region 出库
+                        if (reel == null)     // 进行料卷检查
+                        {
+                            await CheckReel();
+                        }
+
+                        if (reel.StorageLocationId != null)
+                        {
+                            await GetShelfUp();
+
+                            shelfUp.ReelId = null;
+                        }
+                        await _repository.DeleteAsync(reel);
+                        #endregion
+                        break;
                     default:
                         break;
                 }
 
 
             }
-
+            reelMoveLog.ReelInfo = Newtonsoft.Json.JsonConvert.SerializeObject(reel);
             // 最后插入调拨日志
             await _repositoryReelMoveLog.InsertAsync(reelMoveLog);
 
@@ -1015,7 +1038,6 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
         {
             var res = new ReelMoveResDto();
 
-
             // 条码解析
             var reelDtoObj = await _barCodeAnalysisAppService.Analysis(new BaseData.BarCodeAnalysiss.Dto.AnalysisDto() { BarCode = inputDto.BarCode, DtoName = "ReelDto" });
             if (!reelDtoObj.Success)
@@ -1025,11 +1047,11 @@ namespace LY.WMSCloud.WMS.ProduceData.Reels
             }
             ReelDto reeldto = reelDtoObj.Result as ReelDto;
             res.Reel = reeldto;
-            var reel = await _repository.FirstOrDefaultAsync(reeldto.Id);
-            if (reel != null)
-            {
-                res.IsContinuity = reel.ReadyMBillId != null;
-            }
+            var reel = await _repositoryReelMoveLog.FirstOrDefaultAsync(r => r.ReelId == reeldto.Id && r.ReadyMBillId != null);
+
+            res.IsContinuity = reel != null;
+
+
             return res;
         }
     }

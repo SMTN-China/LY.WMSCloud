@@ -23,7 +23,6 @@ namespace LY.WMSCloud.WMS.ProduceData.ReelSupplyTemps
         readonly IWMSRepositories<Reel, string> _repositoryReel;
         readonly IWMSRepositories<StorageLocation, string> _repositorySL;
         readonly LightService LightService;
-        readonly IWMSRepositories<Setting, long> _repositoryT;
         readonly IWMSRepositories<MPN, string> _repositorympn;
         readonly IWMSRepositories<ReelMoveMethod, string> _repositoryRMM;
 
@@ -35,15 +34,13 @@ namespace LY.WMSCloud.WMS.ProduceData.ReelSupplyTemps
             IWMSRepositories<StorageLocation, string> repositorySL,
             LightService lightService,
             IWMSRepositories<ReelMoveMethod, string> repositoryRMM,
-            IWMSRepositories<MPN, string> repositorympn,
-            IWMSRepositories<Setting, long> repositoryT
+            IWMSRepositories<MPN, string> repositorympn
             ) : base(repository)
         {
             _repository = repository;
             _repositoryrb = repositoryrb;
             _repositoryrbd = repositoryrbd;
             _repositoryRMM = repositoryRMM;
-            _repositoryT = repositoryT;
             _repositoryReel = repositoryReel;
             _repositorympn = repositorympn;
             _repositorySL = repositorySL;
@@ -66,16 +63,16 @@ namespace LY.WMSCloud.WMS.ProduceData.ReelSupplyTemps
             }
             CurrentUnitOfWork.SaveChanges();
             // 查询备损数量
-            var readyLossQty = int.Parse(_repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "readyLossQty").Value);
+            var readyLossQty = SettingManager.GetSettingValueForTenant<int>("readyLossQty", AbpSession.TenantId.Value);//  int.Parse(_repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "readyLossQty").Value);
 
             // 查询提前预警天数
-            var overdueDay = int.Parse(_repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "overdueDay").Value);
+            var overdueDay = SettingManager.GetSettingValueForTenant<int>("overdueDay", AbpSession.TenantId.Value); //int.Parse(_repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "overdueDay").Value);
 
             // 查询强制先进先出天数
-            var mustFifoDay = int.Parse(_repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "mustFifoDay").Value);
+            var mustFifoDay = SettingManager.GetSettingValueForTenant<int>("mustFifoDay", AbpSession.TenantId.Value); //int.Parse(_repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "mustFifoDay").Value);
 
             // 补料调拨策略
-            var reelSupplyMethodId = _repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "reelSupplyMethodId").Value;
+            var reelSupplyMethodId = SettingManager.GetSettingValueForTenant("reelSupplyMethodId", AbpSession.TenantId.Value);// _repositoryT.FirstOrDefault(c => c.TenantId == AbpSession.TenantId && c.Name == "reelSupplyMethodId").Value;
 
             // 获取补料调拨策略
             var reelSupplyMethod = await _repositoryRMM.GetAllIncluding(r => r.OutStorages).FirstOrDefaultAsync(r => r.Id == reelSupplyMethodId);
@@ -239,12 +236,20 @@ namespace LY.WMSCloud.WMS.ProduceData.ReelSupplyTemps
 
         public async Task<ICollection<string>> GetPartNoIdsByKeyName(string readyBill, string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repositoryrbd.GetAll().Where(c => c.ReadyMBillId == readyBill && c.PartNoId.Contains(keyName)).Select(r => r.PartNoId).Take(10).ToListAsync();
             return res;
         }
 
         public async Task<ICollection<ReadyMBillDto>> GetReadyMbillsByKeyName(string keyName)
         {
+            if (keyName == null)
+            {
+                keyName = "";
+            }
             var res = await _repositoryrb.GetAll().Where(c => c.Id.Contains(keyName)).Take(10).ToListAsync();
 
             return ObjectMapper.Map<List<ReadyMBillDto>>(res);

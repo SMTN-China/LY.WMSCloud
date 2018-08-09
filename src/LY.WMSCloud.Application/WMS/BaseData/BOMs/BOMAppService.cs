@@ -56,7 +56,7 @@ namespace LY.WMSCloud.WMS.BaseData.BOMs
             //ABP提供了扩展方法PageBy分页方式
             var taskList = res.PageBy(input).ToList();
 
-            return new PagedResultDto<BOMDto>(tasksCount, res.ToList());
+            return new PagedResultDto<BOMDto>(tasksCount, taskList);
         }
 
         [HttpPost]
@@ -78,8 +78,15 @@ namespace LY.WMSCloud.WMS.BaseData.BOMs
             //ABP提供了扩展方法PageBy分页方式
             var taskList = query.PageBy(input).ToList();
 
-           
+
             return new PagedResultDto<ProductDto>(tasksCount, config.CreateMapper().Map<List<MPN>, List<ProductDto>>(taskList));
+        }
+
+        public async Task<ICollection<string>> GetMainPNById(string productId, string partNoId)
+        {
+            var pns = await _repository.GetAll().Where(r => r.ProductId == productId && r.PartNoId == r.MainPartNoId && r.PartNoId.Contains(partNoId)).Select(r => r.PartNoId).ToArrayAsync();
+
+            return pns;
         }
     }
 }

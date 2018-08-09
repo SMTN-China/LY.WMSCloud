@@ -76,7 +76,6 @@ namespace LY.WMSCloud.Entities.ProduceData
         /// </summary>
         [StringLength(36)]
         public string StorageLocationId { get; set; }
-        public virtual StorageLocation StorageLocation { get; set; }
 
         /// <summary>
         /// 仓库Id

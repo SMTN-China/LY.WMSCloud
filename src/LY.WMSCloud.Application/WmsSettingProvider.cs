@@ -19,8 +19,8 @@ namespace LY.WMSCloud
                     new SettingDefinition("overdueDay","30",scopes: SettingScopes.Tenant),
                     new SettingDefinition("readyLossQty","200",scopes: SettingScopes.Tenant),
                     new SettingDefinition("readyFirstMinimumQty","2000",scopes: SettingScopes.Tenant),
-                    new SettingDefinition("lightIsRGB","1",scopes: SettingScopes.Tenant)
-
+                    new SettingDefinition("lightIsRGB","1",scopes: SettingScopes.Tenant),
+                    new SettingDefinition("theme","{}",scopes: SettingScopes.User)
                 };
         }
     }

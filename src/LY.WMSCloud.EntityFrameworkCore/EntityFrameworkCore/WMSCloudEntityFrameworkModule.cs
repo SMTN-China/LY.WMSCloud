@@ -4,6 +4,7 @@ using Abp.Modules;
 using Abp.Reflection.Extensions;
 using Abp.Zero.EntityFrameworkCore;
 using LY.WMSCloud.EntityFrameworkCore.Seed;
+using System.Transactions;
 
 namespace LY.WMSCloud.EntityFrameworkCore
 {
@@ -39,12 +40,15 @@ namespace LY.WMSCloud.EntityFrameworkCore
         {
             IocManager.Register(typeof(IWMSRepositories<,>), typeof(Repositories.WMSRepositories<,>), DependencyLifeStyle.Transient);
             IocManager.Register(typeof(IWMSRepositories<>), typeof(Repositories.WMSRepositories<>), DependencyLifeStyle.Transient);
+            IocManager.Register(typeof(Core.Customized.Foxlink.IFoxLinkRepositories), typeof(Customized.Foxlink.FoxLinkRepositories), DependencyLifeStyle.Transient);
+
 
             IocManager.RegisterAssemblyByConvention(typeof(WMSCloudEntityFrameworkModule).GetAssembly());
         }
 
         public override void PostInitialize()
         {
+            // Configuration.UnitOfWork.IsolationLevel = IsolationLevel.ReadCommitted; Orcale 需求取消注释
             if (!SkipDbSeed)
             {
                 SeedHelper.SeedHostDb(IocManager);

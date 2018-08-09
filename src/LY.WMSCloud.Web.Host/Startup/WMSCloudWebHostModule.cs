@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using LY.WMSCloud.Configuration;
+using Abp.Timing;
 
 namespace LY.WMSCloud.Web.Host.Startup
 {
@@ -22,6 +23,7 @@ namespace LY.WMSCloud.Web.Host.Startup
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(typeof(WMSCloudWebHostModule).GetAssembly());
+            Clock.Provider = ClockProviders.Local;
         }
     }
 }
